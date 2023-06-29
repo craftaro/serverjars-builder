@@ -67,9 +67,13 @@ fun main(args: Array<out String>){
     now = System.currentTimeMillis()
     println("Initializing Environment variables...")
     App.env.putAll(System.getenv())
-    File(".env").readLines().filter { it.isNotBlank() }.forEach {
-        val (key, value) = it.split("=")
-        App.env[key] = value
+    File(".env").apply {
+        if(exists()) {
+            readLines().filter { it.isNotBlank() }.forEach {
+                val (key, value) = it.split("=")
+                App.env[key] = value
+            }
+        }
     }
     println("Environment variables initialized in ${System.currentTimeMillis() - now}ms")
 

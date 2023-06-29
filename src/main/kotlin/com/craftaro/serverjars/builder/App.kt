@@ -3,21 +3,13 @@ package com.craftaro.serverjars.builder
 import com.craftaro.serverjars.builder.servers.PaperService
 import com.craftaro.serverjars.builder.services.CachingService
 import com.craftaro.serverjars.builder.services.MojangService
-import okhttp3.OkHttpClient
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import java.io.File
 
 object App {
-
-    val okHttpclient = OkHttpClient.Builder()
-        .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
-        .followRedirects(true)
-        .build()
-
     val env = mutableMapOf<String, String>()
-
 }
 
 fun main(args: Array<out String>){

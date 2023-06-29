@@ -40,7 +40,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     implementation("aws.sdk.kotlin:s3:0.25.0-beta")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("org.slf4j:slf4j-nop:2.0.7")
+
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.assertj:assertj-core:${assertjVersion}")

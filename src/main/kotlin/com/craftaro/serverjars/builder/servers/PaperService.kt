@@ -81,7 +81,7 @@ object PaperService {
             println("Downloading paper $version build $build ($stability)...")
             val jar = URL(download).readBytes()
             println("Downloaded paper $version build $build ($stability)")
-
+            println("*1-$version")
             println("Building paper $version build $build ($stability)...")
             val paper = Paper(version = version, stability = stability, hash = hash, download = "https://cdn.craftaro.com/serverjars/servers/paper/$version/paper-$version.jar", meta = JsonObject().apply {
                 addProperty("build", build)
@@ -91,6 +91,7 @@ object PaperService {
 
             println("Uploading paper $version build $build ($stability) to DigitalOcean...")
 
+            println("*2-$version")
             runBlocking {
                 s3client.uploadByteArrayToS3(
                     data = jar,

@@ -24,7 +24,11 @@ object PaperService {
 
     fun build(minecraftVersion: String) {
         if(db.isEmpty()) {
-            val data = runBlocking { s3client.readByteArrayFromS3("serverjars/servers/paper/meta.json") } ?: return
+            val data = try {
+                 runBlocking { s3client.readByteArrayFromS3("serverjars/servers/paper/meta.json") } ?: "[]".toByteArray()
+            } catch(_: Exception) {
+                "[]".toByteArray()
+            }
             JsonParser.parseString(String(data)).asJsonArray.reversed().forEach { value ->
                 value.asJsonObject.apply {
                     db.add(Paper(
@@ -81,17 +85,20 @@ object PaperService {
             println("Downloading paper $version build $build ($stability)...")
             val jar = URL(download).readBytes()
             println("Downloaded paper $version build $build ($stability)")
-            println("*1-$version")
             println("Building paper $version build $build ($stability)...")
             val paper = Paper(version = version, stability = stability, hash = hash, download = "https://cdn.craftaro.com/serverjars/servers/paper/$version/paper-$version.jar", meta = JsonObject().apply {
                 addProperty("build", build)
                 addProperty("paperDownload", download)
             })
-            db.add(paper)
+
+            if(index == -1) {
+                db.add(paper)
+            } else {
+                db[index] = paper
+            }
 
             println("Uploading paper $version build $build ($stability) to DigitalOcean...")
 
-            println("*2-$version")
             runBlocking {
                 s3client.uploadByteArrayToS3(
                     data = jar,
@@ -125,7 +132,11 @@ object PaperService {
     }
 
 
-    private fun versionManifest(asset: String): JsonObject = CachingService.rememberMinutes("paper-manifest-$asset", 5) {
-        JsonParser.parseString(URL("https://api.papermc.io/v2/projects/paper/version_group/$asset/builds").readText()).asJsonObject
+    private fun versionManifest(asset: String): JsonObject = try {
+        CachingService.rememberMinutes("paper-manifest-$asset", 5) {
+            JsonParser.parseString(URL("https://api.papermc.io/v2/projects/paper/version_group/$asset/builds").readText()).asJsonObject
+        }
+    } catch (e: Exception) {
+        JsonObject().apply { addProperty("error", e.message) }
     }
 }

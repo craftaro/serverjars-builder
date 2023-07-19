@@ -1,5 +1,8 @@
 name: Build Paper
-on: [push]
+on:
+  schedule:
+    # Every 5 minutes
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: read

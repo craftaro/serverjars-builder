@@ -81,7 +81,7 @@ fun main(args: Array<out String>){
 
     val category = cmd.getOptionValue("category")
     val type = cmd.getOptionValue("type")
-    val version = cmd.getOptionValue("version")
+    val version = cmd.getOptionValue("version", "all")
 
     when(category) {
         "servers" -> {

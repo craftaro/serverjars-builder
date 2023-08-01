@@ -1,14 +1,16 @@
-package com.craftaro.serverjars.builder.services
+package com.craftaro.serverjars.builder.services.utils
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 object CachingService {
 
-    private val expires = LinkedHashMap<String, Instant>()
-    private val cache = LinkedHashMap<String, JsonObject>()
+    private val expires = ConcurrentHashMap<String, Instant>()
+    private val cache = ConcurrentHashMap<String, JsonObject>()
 
     fun init(){
         // Load from disk into memory
@@ -52,14 +54,14 @@ object CachingService {
         })
     }
 
-    fun remember(key: String, ttl: Instant, value: () -> JsonObject): JsonObject {
+    fun remember(key: String, ttl: Instant, value: () -> JsonObject): JsonObject = runBlocking {
         if(Instant.now().isAfter(expires[key] ?: Instant.MIN)) {
             cache.remove(key)
             expires.remove(key)
             expires[key] = ttl
         }
 
-        return cache.computeIfAbsent(key) {
+        cache.computeIfAbsent(key) {
             value()
         }
     }
@@ -85,8 +87,8 @@ object CachingService {
         return rememberHours(key, ttl * 24, value)
     }
 
-    fun rememberForever(key: String, value: () -> JsonObject): JsonObject {
-        return cache.computeIfAbsent(key) {
+    fun rememberForever(key: String, value: () -> JsonObject): JsonObject = runBlocking {
+        cache.computeIfAbsent(key) {
             value()
         }
     }

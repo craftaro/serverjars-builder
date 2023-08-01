@@ -6,6 +6,11 @@ Magic ✨...<br/>
 Actually it's just a bunch of Kotlin code (don't tell anyone, but I think I'm in love with Kotlin... but don't tell Swift!!).<br/>
 You're free to check out our code! But if you use it make sure to take a look to our license!
 
+But how does it actually work?! Well, it's pretty simple, we have a model 'SoftwareBuilder', which is 
+implemented by our different services, like the PaperService, or PurpurService, then the system goes through
+all the services (or just the ones you specified to build) and asynchronously builds them, then it 
+uploads them to the storage service.
+
 # How can I help?
 Feel free to clone this repo and make some changes, then open a PR and done! Someone from the team will check it out and if it meets our ✨High standards✨ (actually, it just needs to work and be pretty :stuck_out_tongue_winking_eye:) we'll merge it!
 

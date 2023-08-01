@@ -1,4 +1,4 @@
-package com.craftaro.serverjars.builder.services
+package com.craftaro.serverjars.builder.services.utils
 
 import com.google.gson.JsonParser
 import java.net.URL
@@ -25,11 +25,12 @@ object MojangService {
         .filter { it.asJsonObject.get("type").asString == "release" }
         .associate { it.asJsonObject.get("id").asString to it.asJsonObject.get("url").asString }
 
-    fun versionManifest(version: String) = CachingService.rememberMinutes(key = "mojangVersionManifest-$version", ttl = 15) {
-        URL(versions[version]).readText().let {
-            JsonParser.parseString(it).asJsonObject
+    fun versionManifest(version: String) =
+        CachingService.rememberMinutes(key = "mojangVersionManifest-$version", ttl = 15) {
+            URL(versions[version]).readText().let {
+                JsonParser.parseString(it).asJsonObject
+            }
         }
-    }
 
     fun assetVersion(version: String) = version.split(".").let { "${it[0]}.${it[1]}" }
 

@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.21"
-    kotlin("plugin.serialization") version "1.8.21"
+    kotlin("jvm") version "1.9.0"
+    kotlin("plugin.serialization") version "1.9.0"
     application
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -36,13 +36,14 @@ dependencies {
     implementation("commons-cli:commons-cli:1.4")
     implementation("commons-io:commons-io:2.10.0")
 
+    implementation("com.vdurmont:semver4j:3.1.0")
+
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.google.code.gson:gson:2.10.1")
 
     implementation("aws.sdk.kotlin:s3:0.25.0-beta")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-nop:2.0.7")
-
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.assertj:assertj-core:${assertjVersion}")

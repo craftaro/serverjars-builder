@@ -1,4 +1,4 @@
-package com.craftaro.serverjars.builder.services
+package com.craftaro.serverjars.builder.services.utils
 
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider

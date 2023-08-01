@@ -80,7 +80,9 @@ fun main(args: Array<out String>){
             }
         }
 
-        services.forEach {
+        val excluded = cmd.getOptionValue("exclude", "").split(";")
+
+        services.filter { !excluded.contains(it.baseDirectory) }.forEach {
             Thread {
                 it.loadDatabase()
                 it.buildAll()
@@ -91,23 +93,33 @@ fun main(args: Array<out String>){
     }
 
     val category = cmd.getOptionValue("category")
-    val type = cmd.getOptionValue("type")
+    val type = cmd.getOptionValue("type", "all")
     val version = cmd.getOptionValue("version", "all")
+    val servicesToProcess = if(type.lowercase() == "all") {
+        services.filter { it.category == category }
+    } else {
+        services.filter { it.category == category && it.type == type }
+    }
 
-    val service = services.firstOrNull { it.category == category && it.type == type } ?: run {
-        println("Unknown service $category $type")
+    if(servicesToProcess.isEmpty()) {
+        println("No services found for category $category and type $type")
         return
     }
 
-    service.loadDatabase()
-    if(version == "all") {
-        service.buildAll()
-    } else if(version.contains(";")) {
-        service.buildAll(version.split(";").toTypedArray())
-    } else {
-        service.build(version)
+    servicesToProcess.forEach { service ->
+        Thread {
+            println("Processing ${service.baseDirectory}...")
+            service.loadDatabase()
+            if(version == "all") {
+                service.buildAll()
+            } else if(version.contains(";")) {
+                service.buildAll(version.split(";").toTypedArray())
+            } else {
+                service.build(version)
+            }
+            service.saveDatabase()
+        }.start()
     }
-    service.saveDatabase()
 }
 
 fun options() = Options().apply {
@@ -129,16 +141,18 @@ fun options() = Options().apply {
     addOption(
         Option.builder("t")
             .longOpt("type")
-            .desc("The type of jar to build (vanilla, paper, etc.)")
+            .desc("The type of jar to build (vanilla, paper, etc.). Defaults to all")
             .hasArg()
+            .optionalArg(true)
             .build()
     )
 
     addOption(
         Option.builder("v")
             .longOpt("version")
-            .desc("The version of the jar to build (1.16.5, 1.17.1, etc.) You can specify multiple versions like this: '1.12;1.13;1.14' (see how it's separated by a semicolon)")
+            .desc("The version of the jar to build (1.16.5, 1.17.1, etc.) You can specify multiple versions like this: '1.12;1.13;1.14' (see how it's separated by a semicolon). Defaults to all")
             .hasArg()
+            .optionalArg(true)
             .build()
     )
 
@@ -146,6 +160,7 @@ fun options() = Options().apply {
         Option.builder("h")
             .longOpt("help")
             .desc("Prints this help message")
+            .optionalArg(true)
             .build()
     )
 
@@ -155,6 +170,15 @@ fun options() = Options().apply {
             .hasArg()
             .optionalArg(true)
             .desc("Prints the available types for a given category.")
+            .build()
+    )
+
+    addOption(
+        Option.builder("e")
+            .longOpt("exclude")
+            .hasArg()
+            .optionalArg(true)
+            .desc("Excludes a software build from the process (only works with --all). Example: --exclude servers/paper;servers/purpur")
             .build()
     )
 }

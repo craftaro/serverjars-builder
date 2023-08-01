@@ -1,4 +1,4 @@
-name: Build Paper
+name: Build All
 on:
   schedule:
     # Every 15 minutes

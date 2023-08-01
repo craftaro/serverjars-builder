@@ -1,8 +1,8 @@
 name: Build Paper
 on:
   schedule:
-    # Every 5 minutes
-    - cron: '*/5 * * * *'
+    # Every 15 minutes
+    - cron: '*/15 * * * *'
 
 permissions:
   contents: read
@@ -29,5 +29,7 @@ jobs:
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          STORAGE_TYPE: S3
+          NO_INPUT: true
         run: |
-          java -jar build/libs/ServerJarsBuilder.jar -c servers -t paper -v all
+          java -jar build/libs/ServerJarsBuilder.jar -a -e "servers/spigot;servers/bukkit"

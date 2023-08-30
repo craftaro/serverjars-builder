@@ -4,7 +4,6 @@ import com.craftaro.serverjars.builder.services.servers.PaperService
 import com.craftaro.serverjars.builder.services.servers.PufferfishService
 import com.craftaro.serverjars.builder.services.servers.PurpurService
 import com.craftaro.serverjars.builder.services.servers.SpongeService
-import com.craftaro.serverjars.builder.services.utils.CachingService
 import com.craftaro.serverjars.builder.services.utils.LocalStorage
 import com.craftaro.serverjars.builder.services.utils.S3Storage
 import com.craftaro.serverjars.builder.services.utils.Storage
@@ -14,8 +13,18 @@ import org.apache.commons.cli.Options
 import java.io.File
 
 object App {
-    val env = mutableMapOf<String, String>()
-    lateinit var storage: Storage
+    val env = mutableMapOf<String, String>().apply {
+        putAll(System.getenv())
+        File(".env").apply {
+            if(exists()) {
+                readLines().filter { it.isNotBlank() && !it.startsWith("#") }.forEach {
+                    val (key, value) = it.split("=")
+                    put(key, value)
+                }
+            }
+        }
+    }
+    val storage: Storage = if(env["STORAGE_TYPE"]?.lowercase() == "s3") S3Storage() else LocalStorage()
 }
 
 fun services() = listOf(
@@ -30,27 +39,6 @@ fun main(args: Array<out String>){
 
     val parser = DefaultParser()
     val cmd = parser.parse(options, args)
-
-
-    var now = System.currentTimeMillis()
-    CachingService.init()
-    println("Caching service initialized in ${System.currentTimeMillis() - now}ms")
-
-    now = System.currentTimeMillis()
-    App.env.putAll(System.getenv())
-    File(".env").apply {
-        if(exists()) {
-            readLines().filter { it.isNotBlank() }.forEach {
-                val (key, value) = it.split("=")
-                App.env[key] = value
-            }
-        }
-    }
-    println("Environment variables initialized in ${System.currentTimeMillis() - now}ms")
-
-    now = System.currentTimeMillis()
-    App.storage = if(App.env["STORAGE_TYPE"]?.lowercase() == "s3") S3Storage() else LocalStorage()
-    println("Storage initialized in ${System.currentTimeMillis() - now}ms")
 
     val services = services()
 

@@ -6,10 +6,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
-import kotlin.io.path.Path
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.deleteRecursively
 import kotlin.test.assertContains
 
 internal class PaperServiceTest {

@@ -12,7 +12,7 @@ object CachingService {
     private val expires = ConcurrentHashMap<String, Instant>()
     private val cache = ConcurrentHashMap<String, JsonObject>()
 
-    fun init(){
+    init {
         // Load from disk into memory
         val contents = File("cache.json").apply {
             if(!exists()) {

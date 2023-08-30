@@ -9,7 +9,6 @@ object Crypto {
     fun sha256(bytes: ByteArray): ByteArray =
         sha256.digest(bytes)
 
-
     fun toString(bytes: ByteArray): String =
         bytes.joinToString("") { "%02x".format(it) }
 }

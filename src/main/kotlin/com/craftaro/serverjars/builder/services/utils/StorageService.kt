@@ -15,6 +15,8 @@ interface Storage {
 
     fun delete(path: String)
 
+    fun contains(path: String): Boolean
+
 }
 
 class S3Storage: Storage {
@@ -60,6 +62,9 @@ class S3Storage: Storage {
             println("Failed to delete $path from S3")
         }
     }
+
+    override fun contains(path: String): Boolean =
+        read(path) != null
 }
 
 class LocalStorage: Storage {
@@ -78,4 +83,8 @@ class LocalStorage: Storage {
     override fun delete(path: String) {
         File(path).deleteRecursively()
     }
+
+    override fun contains(path: String): Boolean =
+        File(path).exists()
+
 }

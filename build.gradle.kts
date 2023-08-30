@@ -40,7 +40,7 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("org.json:json:20180813")
+    implementation("org.json:json:20230227")
 
     implementation("aws.sdk.kotlin:s3:0.25.0-beta")
     implementation("org.slf4j:slf4j-api:2.0.7")

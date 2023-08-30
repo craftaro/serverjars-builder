@@ -54,7 +54,7 @@ object CachingService {
         })
     }
 
-    fun remember(key: String, ttl: Instant, value: () -> JsonObject): JsonObject = runBlocking {
+    private fun remember(key: String, ttl: Instant, value: () -> JsonObject): JsonObject = runBlocking {
         if(Instant.now().isAfter(expires[key] ?: Instant.MIN)) {
             cache.remove(key)
             expires.remove(key)
@@ -66,30 +66,8 @@ object CachingService {
         }
     }
 
-
-    fun rememberMillis(key: String, ttl: Long, value: () -> JsonObject): JsonObject {
-        return remember(key, Instant.now().plusMillis(ttl), value)
-    }
-
-    fun rememberSeconds(key: String, ttl: Int, value: () -> JsonObject): JsonObject {
-        return remember(key, Instant.now().plusSeconds(ttl.toLong()), value)
-    }
-
     fun rememberMinutes(key: String, ttl: Int = 1, value: () -> JsonObject): JsonObject {
-        return rememberSeconds(key, ttl * 60, value)
+        return remember(key, Instant.now().plusSeconds(ttl.toLong() * 60L), value)
     }
 
-    fun rememberHours(key: String, ttl: Int = 1, value: () -> JsonObject): JsonObject {
-        return rememberMinutes(key, ttl * 60, value)
-    }
-
-    fun rememberDays(key: String, ttl: Int = 1, value: () -> JsonObject): JsonObject {
-        return rememberHours(key, ttl * 24, value)
-    }
-
-    fun rememberForever(key: String, value: () -> JsonObject): JsonObject = runBlocking {
-        cache.computeIfAbsent(key) {
-            value()
-        }
-    }
 }

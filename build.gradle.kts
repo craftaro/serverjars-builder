@@ -46,8 +46,6 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-nop:2.0.7")
 
-    testImplementation("org.mock-server:mockserver-netty:5.11.2")
-    testImplementation("org.mock-server:mockserver-client-java:5.11.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.assertj:assertj-core:${assertjVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")

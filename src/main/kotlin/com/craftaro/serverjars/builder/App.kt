@@ -4,26 +4,16 @@ import com.craftaro.serverjars.builder.services.servers.PaperService
 import com.craftaro.serverjars.builder.services.servers.PufferfishService
 import com.craftaro.serverjars.builder.services.servers.PurpurService
 import com.craftaro.serverjars.builder.services.servers.SpongeService
+import com.craftaro.serverjars.builder.services.utils.EnvironmentUtils
 import com.craftaro.serverjars.builder.services.utils.LocalStorage
 import com.craftaro.serverjars.builder.services.utils.S3Storage
 import com.craftaro.serverjars.builder.services.utils.Storage
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
-import java.io.File
 
 object App {
-    val env = mutableMapOf<String, String>().apply {
-        putAll(System.getenv())
-        File(".env").apply {
-            if(exists()) {
-                readLines().filter { it.isNotBlank() && !it.startsWith("#") }.forEach {
-                    val (key, value) = it.split("=")
-                    put(key, value)
-                }
-            }
-        }
-    }
+    val env = EnvironmentUtils()
     val storage: Storage = if(env["STORAGE_TYPE"]?.lowercase() == "s3") S3Storage() else LocalStorage()
 }
 

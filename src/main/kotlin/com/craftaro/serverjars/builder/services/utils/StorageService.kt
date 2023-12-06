@@ -2,7 +2,7 @@ package com.craftaro.serverjars.builder.services.utils
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
-import aws.smithy.kotlin.runtime.net.Url
+import aws.smithy.kotlin.runtime.net.url.Url
 import com.craftaro.serverjars.builder.App
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -35,7 +35,7 @@ class S3Storage: Storage {
 
     override fun read(path: String): String? = try {
         runBlocking {
-            s3client.readByteArrayFromS3(path)?.let { String(it) }
+            s3client.readObjectBytes(path)?.let { String(it) }
         }
     } catch (e: Exception) {
         null
@@ -43,7 +43,7 @@ class S3Storage: Storage {
 
     override fun write(path: String, contents: ByteArray, permission: String, checksum: String?): Any? = try {
         runBlocking {
-            s3client.uploadByteArrayToS3(contents, path, acl=permission, checksumSha256 = checksum)
+            s3client.uploadObjectBytes(contents, path, acl=permission, checksumSha256 = checksum)
         }
     } catch (e: Exception) {
         e.printStackTrace()

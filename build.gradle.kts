@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("jvm") version "1.9.21"
+    kotlin("plugin.serialization") version "1.9.21"
     application
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.json:json:20230227")
 
-    implementation("aws.sdk.kotlin:s3:0.25.0-beta")
+    implementation("aws.sdk.kotlin:s3:1.0.0")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-nop:2.0.7")
 

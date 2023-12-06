@@ -2,7 +2,7 @@ package com.craftaro.serverjars.builder.services.utils
 
 import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
 import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
-import aws.smithy.kotlin.runtime.util.Attributes
+import aws.smithy.kotlin.runtime.collections.Attributes
 import com.craftaro.serverjars.builder.App
 
 class CraftaroS3CredentialsProvider: CredentialsProvider {

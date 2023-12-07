@@ -96,8 +96,13 @@ abstract class SoftwareBuilder {
         }
     }
 
-    open fun isInDatabase(version: String, hash: String): Boolean =
-        db.any { it.version == version && it.hash == hash }
+    open fun isInDatabase(version: String, hash: String): Boolean {
+        if(db.isEmpty()) {
+            loadDatabase()
+        }
+
+        return db.any { it.version == version && it.hash == hash }
+    }
 
     open fun saveToDatabase(file: SoftwareFile) {
         if(isInDatabase(file.version, file.hash)) return
@@ -119,6 +124,7 @@ abstract class SoftwareBuilder {
         }
 
         Storage.write("$baseDirectory/meta.json", data.toString().toByteArray(Charset.defaultCharset()))
+        println("Saved database $baseDirectory/meta.json")
     }
 
 }

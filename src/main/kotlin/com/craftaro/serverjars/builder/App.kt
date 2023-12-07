@@ -1,5 +1,9 @@
 package com.craftaro.serverjars.builder
 
+import com.craftaro.serverjars.builder.jars.modded.BannerService
+import com.craftaro.serverjars.builder.jars.modded.MagmaService
+import com.craftaro.serverjars.builder.jars.modded.MohistService
+import com.craftaro.serverjars.builder.jars.proxies.BungeeService
 import com.craftaro.serverjars.builder.jars.servers.*
 import com.craftaro.serverjars.builder.utils.EnvironmentUtils
 import org.apache.commons.cli.DefaultParser
@@ -10,6 +14,13 @@ object App {
     val env = EnvironmentUtils()
 
     fun services() = listOf(
+        // Proxies
+        BungeeService,
+
+        // Modded
+        MohistService,
+        BannerService,
+        MagmaService,
 
         // Servers
         PaperService,

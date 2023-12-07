@@ -1,5 +1,6 @@
 package com.craftaro.serverjars.builder.utils
 
+import com.craftaro.serverjars.builder.App
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.runBlocking
@@ -61,8 +62,12 @@ object CachingService {
             expires[key] = ttl
         }
 
-        cache.computeIfAbsent(key) {
+        if(App.env["NO_CACHE"]?.toBoolean() == true) {
             value()
+        } else {
+            cache.computeIfAbsent(key) {
+                value()
+            }
         }
     }
 

@@ -38,3 +38,5 @@ It's easy, here's a table with all the variables you can use, and their descript
 | `S3_REGION`         | The S3 region, only used if `DISK` is set to `cloud`                                                                                     | -             |
 | `S3_ENDPOINT`       | The S3 endpoint, only used if `DISK` is set to `cloud`                                                                                   | -             |
 | `SERVERJARS_FOLDER` | The folder where the jars will be stored.                                                                                                | `serverjars`  |
+| `NO_INPUT`          | If this is set to `true`, the system will not ask for any user input, and will just use the terminal properties.                         | `false`       |
+| `NO_CACHE`          | If this is set to `true`, the system will not use any cache.                                                                             | `false`       |

@@ -20,9 +20,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: shadowJar
-      - name: Build jars
+          arguments: test
         env:
-          NO_INPUT: true
-        run: |
-          java -jar build/libs/ServerJarsBuilder.jar -a -e "servers/spigot;servers/bukkit" -v "1.20"
+          STORAGE_TYPE: local
+          SERVERJARS_FOLDER: ${{ github.workspace }}/serverjars

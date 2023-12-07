@@ -1,10 +1,7 @@
 package com.craftaro.serverjars.builder.jars.servers
 
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
-import com.craftaro.serverjars.builder.models.SoftwareFile
 import com.craftaro.serverjars.builder.utils.CachingService
-import com.craftaro.serverjars.builder.utils.Crypto
-import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.FileNotFoundException
@@ -21,7 +18,7 @@ object SpongeService : SoftwareBuilder() {
             .getAsJsonArray("minecraft")
             .map { it.asString }
 
-    override fun build(version: String) {
+    override fun getMeta(version: String): JsonObject = CachingService.rememberMinutes("$baseDirectory/$version/meta", 5) {
         val latestManifest = JsonParser.parseString(
             try {
                 URL("https://dl-api-new.spongepowered.org/api/v2/groups/org.spongepowered/artifacts/spongevanilla/versions?offset=0&limit=1&recommended=true&tags=,minecraft:$version")
@@ -41,48 +38,25 @@ object SpongeService : SoftwareBuilder() {
             ).asString == "jar"
         } ?: run {
             println("No jar asset found for $version ($spongeVersion)")
-            return
+            JsonObject()
         }
 
         val url = asset.asJsonObject.get("downloadUrl").asString
         val hash = "sha1:${asset.asJsonObject.get("sha1").asString}"
 
-        if (isInDatabase(version = version, hash = hash)) {
-            println("Sponge $version ($stability) already built")
-            return
+        JsonObject().apply {
+            addProperty("spongeVersion", spongeVersion)
+            addProperty("spongeApiVersion", versionManifest.getAsJsonObject("tags").get("api").asString)
+            addProperty("origin", url)
+            addProperty("stability", stability)
+            addProperty("hash", hash)
         }
-
-        val apiVersion = versionManifest.getAsJsonObject("tags").get("api").asString
-
-        println(
-            "Building Sponge $version build ${
-                spongeVersion.substringAfter("$version-").substringAfter("$apiVersion-")
-            } ($stability)..."
-        )
-        saveToDatabase(SoftwareFile(
-            version = version,
-            stability = stability,
-            hash = hash,
-            download = "https://cdn.craftaro.com/$baseDirectory/$version/sponge-$version.jar",
-            meta = JsonObject().apply {
-                addProperty("spongeVersion", spongeVersion)
-                addProperty("spongeApiVersion", apiVersion)
-                addProperty("origin", url)
-            }
-        ))
-
-        println(
-            "Uploading Sponge $version build ${
-                spongeVersion.substringAfter("$version-").substringAfter("$apiVersion-")
-            } ($stability) to Storage..."
-        )
-        val bytes = URL(url).readBytes()
-        Storage.write(
-            path = "$baseDirectory/$version/sponge-$version.jar",
-            contents = bytes,
-            permission = "public-read",
-            checksum = Crypto.toString(Crypto.sha256(bytes))
-        )
     }
+
+    override fun getHash(version: String): String? = getMeta(version).let { if (it.has("hash")) it.get("hash").asString else null }
+
+    override fun getDownload(version: String): String? = getMeta(version).let { if (it.has("origin")) it.get("origin").asString else null }
+
+    override fun getStability(version: String): String = getMeta(version).let { if (it.has("stability")) it.get("stability").asString else "unknown" }
 
 }

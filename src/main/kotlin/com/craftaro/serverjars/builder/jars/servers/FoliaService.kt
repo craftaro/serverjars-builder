@@ -4,14 +4,14 @@ import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.services.PaperAPIService
 import com.google.gson.JsonObject
 
-object PaperService : SoftwareBuilder() {
+object FoliaService: SoftwareBuilder() {
 
     override val category: String = "servers"
-    override val type: String = "paper"
+    override val type: String = "folia"
 
     private val api = PaperAPIService(
         baseDirectory = baseDirectory,
-        project = "paper",
+        project = "folia",
     )
 
     override fun availableVersions(): List<String> = api.availableVersions()
@@ -27,4 +27,6 @@ object PaperService : SoftwareBuilder() {
     }
 
     override fun getStability(version: String): String = api.getMeta(version).get("stability").asString
+
+
 }

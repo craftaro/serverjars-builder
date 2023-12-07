@@ -1,9 +1,6 @@
 package com.craftaro.serverjars.builder
 
-import com.craftaro.serverjars.builder.jars.servers.PaperService
-import com.craftaro.serverjars.builder.jars.servers.PufferfishService
-import com.craftaro.serverjars.builder.jars.servers.PurpurService
-import com.craftaro.serverjars.builder.jars.servers.SpongeService
+import com.craftaro.serverjars.builder.jars.servers.*
 import com.craftaro.serverjars.builder.utils.EnvironmentUtils
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
@@ -11,14 +8,17 @@ import org.apache.commons.cli.Options
 
 object App {
     val env = EnvironmentUtils()
-}
 
-fun services() = listOf(
-    PaperService,
-    PurpurService,
-    SpongeService,
-    PufferfishService
-)
+    fun services() = listOf(
+
+        // Servers
+        PaperService,
+        FoliaService,
+        PurpurService,
+        SpongeService,
+        PufferfishService,
+    )
+}
 
 fun main(args: Array<out String>){
     val options = options()
@@ -26,7 +26,7 @@ fun main(args: Array<out String>){
     val parser = DefaultParser()
     val cmd = parser.parse(options, args)
 
-    val services = services()
+    val services = App.services()
 
     if(cmd.options.isEmpty() || cmd.hasOption("help")) {
         println("Usage: java -jar ServerJarsBuilder.jar [options]")

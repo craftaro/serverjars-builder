@@ -1,9 +1,7 @@
 package com.craftaro.serverjars.builder.jars.proxies
 
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
-import com.craftaro.serverjars.builder.models.SoftwareFile
-import com.craftaro.serverjars.builder.utils.Crypto
-import com.craftaro.serverjars.builder.utils.Storage
+import com.craftaro.serverjars.builder.utils.CachingService
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL
@@ -32,51 +30,36 @@ object BungeeService: SoftwareBuilder() {
     override fun availableVersions(): List<String> =
         builds.values.toList()
 
-    override fun build(version: String) {
+    override fun getMeta(version: String): JsonObject = CachingService.rememberMinutes("$baseDirectory/$version/meta", 5) {
         val buildNumber = builds.filter { it.value == version }.keys.first()
         val manifest = JsonParser.parseString(URL("https://ci.md-5.net/job/Bungeecord/$buildNumber/api/json?tree=artifacts[fileName,relativePath],mavenArtifacts[moduleRecords[mainArtifact[fileName,md5sum]]]").readText()).asJsonObject
         // Find BungeeCord.jar
         val artifact = manifest.getAsJsonArray("artifacts").find { it.asJsonObject.get("fileName").asString == "BungeeCord.jar" } ?: run {
             println("No BungeeCord.jar artifact found for $version")
-            return
+            JsonObject()
         }
         // Now find md5 sum in mavenArtifacts using the same filename
         val md5sum = manifest.getAsJsonObject("mavenArtifacts").getAsJsonArray("moduleRecords")
             .filter { it.asJsonObject.has("mainArtifact") && it.asJsonObject.get("mainArtifact") != null && !it.asJsonObject.get("mainArtifact").isJsonNull }
             .map { it.asJsonObject.getAsJsonObject("mainArtifact") }
             .find { it.get("fileName").asString == artifact.asJsonObject.get("fileName").asString }?.get("md5sum")?.asString ?: run {
-                println("No md5sum found for $version")
-                return
-            }
+            println("No md5sum found for $version")
+            JsonObject()
+        }
         // Download
         val url = "https://ci.md-5.net/job/Bungeecord/$buildNumber/artifact/${artifact.asJsonObject.get("relativePath").asString}"
         val hash = "md5:${md5sum}"
 
-        if(isInDatabase(version, hash)) {
-            println("Skipping $version, already in database")
-            return
+        JsonObject().apply {
+            addProperty("buildNumber", buildNumber)
+            addProperty("origin", url)
+            addProperty("hash", hash)
         }
-
-        println("Building BungeeCord $version build $buildNumber (snapshot)...")
-
-        saveToDatabase(SoftwareFile(
-            version = version,
-            stability = "snapshot",
-            hash = hash,
-            download = "https://cdn.craftaro.com/$baseDirectory/$version/bungee-$version.jar",
-            meta = JsonObject().apply {
-                addProperty("buildNumber", buildNumber)
-                addProperty("origin", url)
-            }
-        ))
-
-        println("Uploading Bungee $version build $buildNumber (snapshot) to Storage...")
-        val bytes = URL(url).readBytes()
-        Storage.write(
-            path = "$baseDirectory/$version/bungee-$version.jar",
-            contents = bytes,
-            permission = "public-read",
-            checksum = Crypto.toString(Crypto.sha256(bytes))
-        )
     }
+
+    override fun getHash(version: String): String? = getMeta(version).let { if (it.has("hash")) it.get("hash").asString else null }
+
+    override fun getDownload(version: String): String? = getMeta(version).let { if (it.has("origin")) it.get("origin").asString else null }
+
+    override fun getStability(version: String): String = "snapshot"
 }

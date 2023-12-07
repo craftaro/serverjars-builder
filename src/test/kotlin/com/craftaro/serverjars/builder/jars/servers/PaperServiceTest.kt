@@ -1,11 +1,8 @@
-package com.craftaro.serverjars.builder.services.servers
+package com.craftaro.serverjars.builder.jars.servers
 
-import com.craftaro.serverjars.builder.App
-import org.apache.commons.io.FileUtils
-import org.junit.jupiter.api.AfterAll
+import com.craftaro.serverjars.builder.utils.Storage
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.File
 import kotlin.test.assertContains
 
 internal class PaperServiceTest {
@@ -25,21 +22,14 @@ internal class PaperServiceTest {
     @Test
     fun `build() builds 1_20`() {
         PaperService.build("1.20")
-        App.storage.contains("${PaperService.baseDirectory}/1.20/paper-1.20.jar")
+        assertTrue(Storage.contains("${PaperService.baseDirectory}/1.20/paper-1.20.jar"))
     }
 
     @Test
     fun `build() latest`() {
         val version = PaperService.availableVersions().first()
         PaperService.build(version)
-        App.storage.contains("${PaperService.baseDirectory}/$version/paper-$version.jar")
+        assertTrue(Storage.contains("${PaperService.baseDirectory}/$version/paper-$version.jar"))
     }
 
-    companion object {
-        @JvmStatic
-        @AfterAll
-        fun cleanup() {
-            arrayOf("serverjars/").map { File(it) }.filter{ it.exists() }.forEach { FileUtils.forceDelete(it) }
-        }
-    }
 }

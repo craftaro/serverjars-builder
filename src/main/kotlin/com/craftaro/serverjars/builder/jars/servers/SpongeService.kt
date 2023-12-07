@@ -1,10 +1,11 @@
-package com.craftaro.serverjars.builder.services.servers
+package com.craftaro.serverjars.builder.jars.servers
 
 import com.craftaro.serverjars.builder.App
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.models.SoftwareFile
-import com.craftaro.serverjars.builder.services.utils.CachingService
-import com.craftaro.serverjars.builder.services.utils.Crypto
+import com.craftaro.serverjars.builder.utils.CachingService
+import com.craftaro.serverjars.builder.utils.Crypto
+import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.FileNotFoundException
@@ -77,7 +78,7 @@ object SpongeService : SoftwareBuilder() {
             } ($stability) to Storage..."
         )
         val bytes = URL(url).readBytes()
-        App.storage.write(
+        Storage.write(
             path = "$baseDirectory/$version/sponge-$version.jar",
             contents = bytes,
             permission = "public-read",

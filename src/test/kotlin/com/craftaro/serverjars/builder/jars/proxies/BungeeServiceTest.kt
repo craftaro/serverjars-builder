@@ -1,8 +1,9 @@
-package com.craftaro.serverjars.builder.services.proxies
+package com.craftaro.serverjars.builder.jars.proxies
 
+import com.craftaro.serverjars.builder.utils.Storage
 import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -23,14 +24,7 @@ class BungeeServiceTest {
     @Test
     fun `Test build() 1_19`() {
         BungeeService.build("1.19")
-        assertTrue(File("serverjars/proxies/bungee/1.19/bungee-1.19.jar").exists())
+        assertTrue(Storage.contains("${BungeeService.baseDirectory}/1.19/bungee-1.19.jar"))
     }
 
-    companion object {
-        @JvmStatic
-        @AfterAll
-        fun cleanup() {
-            arrayOf("serverjars/").map { File(it) }.filter{ it.exists() }.forEach { FileUtils.forceDelete(it) }
-        }
-    }
 }

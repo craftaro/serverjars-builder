@@ -1,4 +1,4 @@
-package com.craftaro.serverjars.builder.services.utils
+package com.craftaro.serverjars.builder.utils
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

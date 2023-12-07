@@ -1,4 +1,4 @@
-package com.craftaro.serverjars.builder.services.utils
+package com.craftaro.serverjars.builder.utils
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.*

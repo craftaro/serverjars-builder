@@ -1,6 +1,6 @@
 package com.craftaro.serverjars.builder.models
 
-import com.craftaro.serverjars.builder.App
+import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.nio.charset.Charset
@@ -11,7 +11,7 @@ abstract class SoftwareBuilder {
     abstract val type: String
 
     val baseDirectory: String
-        get() = "serverjars/$category/$type"
+        get() = "$category/$type"
 
     val db: MutableList<SoftwareFile> = mutableListOf()
 
@@ -30,7 +30,7 @@ abstract class SoftwareBuilder {
     open fun loadDatabase() {
         if(db.isNotEmpty()) return
 
-        JsonParser.parseString(App.storage.read("$baseDirectory/meta.json") ?: "[]").asJsonArray.forEach { value ->
+        JsonParser.parseString(if(Storage.contains("$baseDirectory/meta.json")) (Storage.readString("$baseDirectory/meta.json") ?: "[]") else "[]").asJsonArray.forEach { value ->
             value.asJsonObject.apply {
                 db.add(
                     SoftwareFile(
@@ -51,7 +51,7 @@ abstract class SoftwareBuilder {
     open fun saveToDatabase(file: SoftwareFile) {
         if(isInDatabase(file.version, file.hash)) return
 
-        // Now if in the db there's the same version replace it, but keep the same index
+        // Now if in the db there's the same version, replace it, but keep the same index
         val index = db.indexOfFirst { it.version == file.version }
 
         if(index != -1) {
@@ -67,7 +67,7 @@ abstract class SoftwareBuilder {
             data.add(value.toJson())
         }
 
-        App.storage.write("$baseDirectory/meta.json", data.toString().toByteArray(Charset.defaultCharset()))
+        Storage.write("$baseDirectory/meta.json", data.toString().toByteArray(Charset.defaultCharset()))
     }
 
 }

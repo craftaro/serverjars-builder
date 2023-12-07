@@ -1,10 +1,11 @@
-package com.craftaro.serverjars.builder.services.servers
+package com.craftaro.serverjars.builder.jars.servers
 
 import com.craftaro.serverjars.builder.App
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.models.SoftwareFile
-import com.craftaro.serverjars.builder.services.utils.CachingService
-import com.craftaro.serverjars.builder.services.utils.Crypto
+import com.craftaro.serverjars.builder.utils.CachingService
+import com.craftaro.serverjars.builder.utils.Crypto
+import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL
@@ -52,7 +53,7 @@ object PufferfishService: SoftwareBuilder() {
 
         println("Uploading Pufferfish $version build $buildNumber to Storage...")
         val bytes = URL(download).readBytes()
-        App.storage.write(
+        Storage.write(
             path = "$baseDirectory/$version/pufferfish-$version.jar",
             contents = bytes,
             permission = "public-read",

@@ -1,4 +1,4 @@
-package com.craftaro.serverjars.builder.services.utils
+package com.craftaro.serverjars.builder.utils
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
@@ -9,7 +9,24 @@ import java.io.File
 
 interface Storage {
 
-    fun read(path: String): String?
+    companion object {
+        val storage = if(App.env["STORAGE_TYPE"]?.lowercase() == "s3") S3Storage() else LocalStorage()
+
+        fun read(path: String): ByteArray? = storage.read(path)
+
+        fun readString(path: String): String? = storage.read(path)?.let { String(it) }
+
+        fun write(path: String, contents: ByteArray, permission: String = "public-read", checksum: String? = null): Any? =
+            storage.write(path, contents, permission, checksum)
+
+        fun delete(path: String) = storage.delete(path)
+
+        fun contains(path: String): Boolean = storage.contains(path)
+    }
+
+    fun readString(path: String): String?
+
+    fun read(path: String): ByteArray?
 
     fun write(path: String, contents: ByteArray, permission: String = "public-read", checksum: String? = null): Any?
 
@@ -33,13 +50,15 @@ class S3Storage: Storage {
         println("Loading S3Storage with secret ${(App.env["CDN_SECRET"] ?: "").toCharArray().map { '*' }.joinToString("")}")
     }
 
-    override fun read(path: String): String? = try {
+    override fun read(path: String): ByteArray? = try {
         runBlocking {
-            s3client.readObjectBytes(path)?.let { String(it) }
+            s3client.readObjectBytes(path)
         }
     } catch (e: Exception) {
         null
     }
+
+    override fun readString(path: String): String? = read(path)?.let { String(it) }
 
     override fun write(path: String, contents: ByteArray, permission: String, checksum: String?): Any? = try {
         runBlocking {
@@ -53,38 +72,38 @@ class S3Storage: Storage {
     override fun delete(path: String) {
         try {
             runBlocking {
-                s3client.deleteObject(DeleteObjectRequest {
-                    bucket = App.env["S3_BUCKET"]
-                    key = path
-                })
+                s3client.deleteObject(path)
             }
         } catch (e: Exception) {
             println("Failed to delete $path from S3")
         }
     }
 
-    override fun contains(path: String): Boolean =
-        read(path) != null
+    override fun contains(path: String): Boolean = runBlocking {
+        s3client.objectExists(path)
+    }
 }
 
 class LocalStorage: Storage {
 
-    override fun read(path: String): String? = File(path).let {
-        if(it.exists()) it.readText() else null
+    override fun read(path: String): ByteArray? = File(if(App.env["SERVERJARS_FOLDER"] != null) "${App.env["SERVERJARS_FOLDER"]}/$path" else path).let {
+        if(it.exists()) it.readBytes() else null
     }
 
+    override fun readString(path: String): String? = read(path)?.let { String(it) }
+
     override fun write(path: String, contents: ByteArray, permission: String, checksum: String?): Any =
-        File(path).apply {
+        File(if(App.env["SERVERJARS_FOLDER"] != null) "${App.env["SERVERJARS_FOLDER"]}/$path" else path).apply {
             parentFile.mkdirs()
             if(!exists()) createNewFile()
             writeBytes(contents)
         }
 
     override fun delete(path: String) {
-        File(path).deleteRecursively()
+        File(if(App.env["SERVERJARS_FOLDER"] != null) "${App.env["SERVERJARS_FOLDER"]}/$path" else path).deleteRecursively()
     }
 
     override fun contains(path: String): Boolean =
-        File(path).exists()
+        File(if(App.env["SERVERJARS_FOLDER"] != null) "${App.env["SERVERJARS_FOLDER"]}/$path" else path).exists()
 
 }

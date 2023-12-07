@@ -1,10 +1,11 @@
-package com.craftaro.serverjars.builder.services.servers
+package com.craftaro.serverjars.builder.jars.servers
 
 import com.craftaro.serverjars.builder.App
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.models.SoftwareFile
-import com.craftaro.serverjars.builder.services.utils.CachingService
-import com.craftaro.serverjars.builder.services.utils.Crypto
+import com.craftaro.serverjars.builder.utils.CachingService
+import com.craftaro.serverjars.builder.utils.Crypto
+import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL
@@ -48,7 +49,7 @@ object PurpurService: SoftwareBuilder() {
         ))
 
         println("Uploading purpur $version build $build ($stability) to Storage...")
-        App.storage.write(
+        Storage.write(
             path = "$baseDirectory/$version/purpur-$version.jar",
             contents = jar,
             permission = "public-read",

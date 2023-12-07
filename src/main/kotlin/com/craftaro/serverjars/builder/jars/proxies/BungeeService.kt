@@ -1,9 +1,9 @@
-package com.craftaro.serverjars.builder.services.proxies
+package com.craftaro.serverjars.builder.jars.proxies
 
-import com.craftaro.serverjars.builder.App
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.models.SoftwareFile
-import com.craftaro.serverjars.builder.services.utils.Crypto
+import com.craftaro.serverjars.builder.utils.Crypto
+import com.craftaro.serverjars.builder.utils.Storage
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL
@@ -72,7 +72,7 @@ object BungeeService: SoftwareBuilder() {
 
         println("Uploading Bungee $version build $buildNumber (snapshot) to Storage...")
         val bytes = URL(url).readBytes()
-        App.storage.write(
+        Storage.write(
             path = "$baseDirectory/$version/bungee-$version.jar",
             contents = bytes,
             permission = "public-read",

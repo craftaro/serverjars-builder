@@ -30,6 +30,7 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
           STORAGE_TYPE: S3
+          SERVERJARS_FOLDER: serverjars
           NO_INPUT: true
         run: |
           java -jar build/libs/ServerJarsBuilder.jar -a -e "servers/spigot;servers/bukkit"

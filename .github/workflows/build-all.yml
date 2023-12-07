@@ -21,7 +21,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: shadowJar
+          arguments: shadowJar --no-daemon --console=plain
       - name: Build jars
         env:
           S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}

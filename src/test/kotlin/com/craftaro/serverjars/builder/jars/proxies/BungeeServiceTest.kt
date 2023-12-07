@@ -1,11 +1,8 @@
 package com.craftaro.serverjars.builder.jars.proxies
 
 import com.craftaro.serverjars.builder.utils.Storage
-import org.apache.commons.io.FileUtils
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class BungeeServiceTest {
 

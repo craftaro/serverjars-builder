@@ -1,7 +1,6 @@
 package com.craftaro.serverjars.builder.utils
 
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
 import aws.smithy.kotlin.runtime.net.url.Url
 import com.craftaro.serverjars.builder.App
 import kotlinx.coroutines.runBlocking
@@ -41,7 +40,7 @@ class S3Storage: Storage {
     companion object {
         private val s3client = S3Client {
             region = App.env["S3_REGION"]
-            credentialsProvider = CraftaroS3CredentialsProvider()
+            credentialsProvider = CraftaroS3CredentialProvider()
             endpointUrl = Url.parse(App.env["S3_ENDPOINT"] ?: "")
         }
     }

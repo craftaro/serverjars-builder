@@ -1,6 +1,5 @@
 package com.craftaro.serverjars.builder.jars.servers
 
-import com.craftaro.serverjars.builder.App
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.models.SoftwareFile
 import com.craftaro.serverjars.builder.utils.CachingService

@@ -41,6 +41,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.json:json:20230227")
+    implementation("org.jsoup:jsoup:1.17.1")
 
     implementation("aws.sdk.kotlin:s3:1.0.0")
     implementation("org.slf4j:slf4j-api:2.0.7")

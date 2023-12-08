@@ -41,14 +41,8 @@ object MagmaService: SoftwareBuilder() {
         }
     }
 
-    override fun getHash(version: String): String? {
-        val meta = getMeta(version)
-        if(!meta.has("origin")) {
-            return null
-        }
-
-        val bytes = URL(meta["origin"].asString).readBytes()
-        return Crypto.toString(Crypto.sha256(bytes))
+    override fun getHash(version: String): String? = getMeta(version)["origin"]?.asString?.let {
+        Crypto.toString(Crypto.sha256(URL(it).readBytes()))
     }
 
     override fun getDownload(version: String): String? = getMeta(version).let {

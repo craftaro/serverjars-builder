@@ -18,13 +18,9 @@ object PaperService : SoftwareBuilder() {
 
     override fun getMeta(version: String): JsonObject = api.getMeta(version)
 
-    override fun getHash(version: String): String? = api.getMeta(version).let {
-        if (it.has("hash")) it.get("hash").asString else null
-    }
+    override fun getHash(version: String): String? = api.getMeta(version)["hash"]?.asString
 
-    override fun getDownload(version: String): String? = api.getMeta(version).let {
-        if (it.has("origin")) it.get("origin").asString else null
-    }
+    override fun getDownload(version: String): String? = api.getMeta(version)["origin"]?.asString
 
-    override fun getStability(version: String): String = api.getMeta(version).get("stability").asString
+    override fun getStability(version: String): String = api.getMeta(version).get("stability")?.asString ?: "unknown"
 }

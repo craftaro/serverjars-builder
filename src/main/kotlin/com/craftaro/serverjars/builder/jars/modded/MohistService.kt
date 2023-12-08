@@ -18,13 +18,9 @@ object MohistService: SoftwareBuilder() {
 
     override fun getMeta(version: String): JsonObject = api.getMeta(version)
 
-    override fun getHash(version: String): String? = getMeta(version).let {
-        if(it.has("hash")) it["hash"].asString else null
-    }
+    override fun getHash(version: String): String? = getMeta(version)["hash"]?.asString
 
-    override fun getDownload(version: String): String? = getMeta(version).let {
-        if(it.has("origin")) it["origin"].asString else null
-    }
+    override fun getDownload(version: String): String? = getMeta(version)["origin"]?.asString
 
     override fun getStability(version: String): String = "unknown"
 }

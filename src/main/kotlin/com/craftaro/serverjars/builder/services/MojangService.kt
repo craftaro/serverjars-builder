@@ -1,5 +1,6 @@
-package com.craftaro.serverjars.builder.utils
+package com.craftaro.serverjars.builder.services
 
+import com.craftaro.serverjars.builder.utils.CachingService
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL

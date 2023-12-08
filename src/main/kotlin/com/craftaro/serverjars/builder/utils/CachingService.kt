@@ -6,6 +6,7 @@ import com.google.gson.JsonParser
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.time.Instant
+import java.util.Base64
 import java.util.concurrent.ConcurrentHashMap
 
 object CachingService {
@@ -71,8 +72,16 @@ object CachingService {
         }
     }
 
-    fun rememberMinutes(key: String, ttl: Int = 1, value: () -> JsonObject): JsonObject {
-        return remember(key, Instant.now().plusSeconds(ttl.toLong() * 60L), value)
-    }
+    fun rememberMinutes(key: String, ttl: Int = 1, value: () -> JsonObject): JsonObject =
+        remember(key, Instant.now().plusSeconds(ttl.toLong() * 60L), value)
+
+    fun rememberStringMinutes(key: String, ttl: Int = 1, value: () -> String): String =
+        rememberMinutes(key, ttl) {
+            JsonObject().apply {
+                addProperty("value", Base64.getEncoder().encodeToString(value().toByteArray()))
+            }
+        }.asJsonObject["value"]?.asString?.let {
+            Base64.getDecoder().decode(it).toString(Charsets.UTF_8)
+        } ?: throw Exception("Could not remember $key")
 
 }

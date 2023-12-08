@@ -53,10 +53,10 @@ object SpongeService : SoftwareBuilder() {
         }
     }
 
-    override fun getHash(version: String): String? = getMeta(version).let { if (it.has("hash")) it.get("hash").asString else null }
+    override fun getHash(version: String): String? = getMeta(version)["hash"]?.asString
 
-    override fun getDownload(version: String): String? = getMeta(version).let { if (it.has("origin")) it.get("origin").asString else null }
+    override fun getDownload(version: String): String? = getMeta(version)["origin"]?.asString
 
-    override fun getStability(version: String): String = getMeta(version).let { if (it.has("stability")) it.get("stability").asString else "unknown" }
+    override fun getStability(version: String): String = getMeta(version)["stability"]?.asString ?: "unknown"
 
 }

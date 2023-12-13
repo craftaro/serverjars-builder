@@ -3,6 +3,7 @@ package com.craftaro.serverjars.builder
 import com.craftaro.serverjars.builder.jars.bedrock.PocketMineService
 import com.craftaro.serverjars.builder.jars.modded.*
 import com.craftaro.serverjars.builder.jars.proxies.BungeeService
+import com.craftaro.serverjars.builder.jars.proxies.VelocityService
 import com.craftaro.serverjars.builder.jars.servers.*
 import com.craftaro.serverjars.builder.utils.EnvironmentUtils
 import org.apache.commons.cli.DefaultParser
@@ -18,6 +19,7 @@ object App {
 
         // Modded
         BannerService,
+        CatServerService,
         FabricService,
         ForgeService,
         MagmaService,
@@ -25,6 +27,7 @@ object App {
 
         // Proxies
         BungeeService,
+        VelocityService,
 
         // Servers
         PaperService,
@@ -97,16 +100,21 @@ fun main(args: Array<out String>){
 
     servicesToProcess.forEach { service ->
         Thread {
-            println("Processing ${service.baseDirectory}...")
-            service.loadDatabase()
-            if(version == "all") {
-                service.buildAll()
-            } else if(version.contains(";")) {
-                service.buildAll(version.split(";").toTypedArray())
-            } else {
-                service.build(version)
+            try {
+                println("Processing ${service.baseDirectory}...")
+                service.loadDatabase()
+                if(version == "all") {
+                    service.buildAll()
+                } else if(version.contains(";")) {
+                    service.buildAll(version.split(";").toTypedArray())
+                } else {
+                    service.build(version)
+                }
+                service.saveDatabase()
+            } catch (e: Exception) {
+                println("An error occurred while processing ${service.baseDirectory}: ${e.message}")
+                e.printStackTrace()
             }
-            service.saveDatabase()
         }.start()
     }
 }

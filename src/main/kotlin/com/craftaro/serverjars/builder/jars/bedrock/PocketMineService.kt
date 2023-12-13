@@ -29,7 +29,7 @@ object PocketMineService: SoftwareBuilder() {
             addProperty("minecraft_version", buildInfo.get("mcpe_version").asString)
             addProperty("pocketmine_version", buildInfo.get("base_version").asString)
             addProperty("stability", buildInfo.get("channel").asString)
-            addProperty("download", buildInfo.get("download_url").asString)
+            addProperty("origin", buildInfo.get("download_url").asString)
             add("requirements", JsonArray().apply {
                 JsonObject().apply {
                     addProperty("name", "PHP")
@@ -41,14 +41,14 @@ object PocketMineService: SoftwareBuilder() {
     }
 
     override fun getHash(version: String): String? = try {
-        getMeta(version)["download"]?.asString?.let {
+        getMeta(version)["origin"]?.asString?.let {
             Crypto.toString(Crypto.sha256(URL(it).readBytes()))
         }
     } catch (_: Exception) {
         null
     }
 
-    override fun getDownload(version: String): String? = getMeta(version)["download"]?.asString
+    override fun getDownload(version: String): String? = getMeta(version)["origin"]?.asString
 
     override fun getStability(version: String): String = getMeta(version)["stability"].asString
 

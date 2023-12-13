@@ -51,7 +51,7 @@ object BungeeService: SoftwareBuilder() {
         val hash = "md5:${md5sum}"
 
         JsonObject().apply {
-            addProperty("buildNumber", buildNumber)
+            addProperty("build_number", buildNumber)
             addProperty("origin", url)
             addProperty("hash", hash)
         }

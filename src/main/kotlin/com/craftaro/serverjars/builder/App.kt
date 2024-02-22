@@ -1,29 +1,50 @@
 package com.craftaro.serverjars.builder
 
-import com.craftaro.serverjars.builder.services.servers.PaperService
-import com.craftaro.serverjars.builder.services.servers.PufferfishService
-import com.craftaro.serverjars.builder.services.servers.PurpurService
-import com.craftaro.serverjars.builder.services.servers.SpongeService
-import com.craftaro.serverjars.builder.services.utils.CachingService
-import com.craftaro.serverjars.builder.services.utils.LocalStorage
-import com.craftaro.serverjars.builder.services.utils.S3Storage
-import com.craftaro.serverjars.builder.services.utils.Storage
+import com.craftaro.serverjars.builder.jars.bedrock.PocketMineService
+import com.craftaro.serverjars.builder.jars.modded.*
+import com.craftaro.serverjars.builder.jars.proxies.BungeeService
+import com.craftaro.serverjars.builder.jars.proxies.VelocityService
+import com.craftaro.serverjars.builder.jars.proxies.WaterfallService
+import com.craftaro.serverjars.builder.jars.servers.*
+import com.craftaro.serverjars.builder.jars.vanilla.SnapshotService
+import com.craftaro.serverjars.builder.jars.vanilla.VanillaService
+import com.craftaro.serverjars.builder.utils.EnvironmentUtils
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
-import java.io.File
 
 object App {
-    val env = mutableMapOf<String, String>()
-    lateinit var storage: Storage
-}
+    val env = EnvironmentUtils()
 
-fun services() = listOf(
-    PaperService,
-    PurpurService,
-    SpongeService,
-    PufferfishService
-)
+    fun services() = listOf(
+        // Bedrock
+        PocketMineService,
+
+        // Modded
+        BannerService,
+        CatServerService,
+        FabricService,
+        ForgeService,
+        MagmaService,
+        MohistService,
+
+        // Proxies
+        BungeeService,
+        VelocityService,
+        WaterfallService,
+
+        // Servers
+        PaperService,
+        FoliaService,
+        PurpurService,
+        SpongeService,
+        PufferfishService,
+
+        // Vanilla
+        VanillaService,
+        SnapshotService,
+    )
+}
 
 fun main(args: Array<out String>){
     val options = options()
@@ -31,28 +52,7 @@ fun main(args: Array<out String>){
     val parser = DefaultParser()
     val cmd = parser.parse(options, args)
 
-
-    var now = System.currentTimeMillis()
-    CachingService.init()
-    println("Caching service initialized in ${System.currentTimeMillis() - now}ms")
-
-    now = System.currentTimeMillis()
-    App.env.putAll(System.getenv())
-    File(".env").apply {
-        if(exists()) {
-            readLines().filter { it.isNotBlank() }.forEach {
-                val (key, value) = it.split("=")
-                App.env[key] = value
-            }
-        }
-    }
-    println("Environment variables initialized in ${System.currentTimeMillis() - now}ms")
-
-    now = System.currentTimeMillis()
-    App.storage = if(App.env["STORAGE_TYPE"]?.lowercase() == "s3") S3Storage() else LocalStorage()
-    println("Storage initialized in ${System.currentTimeMillis() - now}ms")
-
-    val services = services()
+    val services = App.services()
 
     if(cmd.options.isEmpty() || cmd.hasOption("help")) {
         println("Usage: java -jar ServerJarsBuilder.jar [options]")
@@ -61,13 +61,13 @@ fun main(args: Array<out String>){
             println("\t-${it.opt} --${it.longOpt}\t${it.description}")
         }
 
-        println("\nAvailable categories: ${services.distinctBy { it.category }.joinToString(", "){ it.category }}")
+        println("\nAvailable categories: ${services.distinctBy { it.type }.joinToString(", "){ it.type }}")
         return
     }
 
     if(cmd.hasOption("available-types")) {
         val category = cmd.getOptionValue("available-types", "servers")
-        println("Available types for $category: ${services.filter { it.category == category }.distinctBy { it.type }.joinToString(", "){ it.type }}")
+        println("Available types for $category: ${services.filter { it.type == category }.distinctBy { it.category }.joinToString(", "){ it.category }}")
         return
     }
 
@@ -96,9 +96,9 @@ fun main(args: Array<out String>){
     val type = cmd.getOptionValue("type", "all")
     val version = cmd.getOptionValue("version", "all")
     val servicesToProcess = if(type.lowercase() == "all") {
-        services.filter { it.category == category }
+        services.filter { it.type == category }
     } else {
-        services.filter { it.category == category && it.type == type }
+        services.filter { it.type == category && it.category == type }
     }
 
     if(servicesToProcess.isEmpty()) {
@@ -108,16 +108,19 @@ fun main(args: Array<out String>){
 
     servicesToProcess.forEach { service ->
         Thread {
-            println("Processing ${service.baseDirectory}...")
-            service.loadDatabase()
-            if(version == "all") {
-                service.buildAll()
-            } else if(version.contains(";")) {
-                service.buildAll(version.split(";").toTypedArray())
-            } else {
-                service.build(version)
+            try {
+                println("Processing ${service.baseDirectory}...")
+                service.loadDatabase()
+                service.buildAll(if(version.contains(";")) {
+                    version.split(";").toTypedArray()
+                } else {
+                    arrayOf(version)
+                })
+                service.saveDatabase()
+            } catch (e: Exception) {
+                println("An error occurred while processing ${service.baseDirectory}: ${e.message}")
+                e.printStackTrace()
             }
-            service.saveDatabase()
         }.start()
     }
 }

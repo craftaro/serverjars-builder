@@ -8,8 +8,8 @@ import java.io.FileNotFoundException
 import java.net.URL
 
 object SpongeService : SoftwareBuilder() {
-    override val category: String = "servers"
-    override val type: String = "sponge"
+    override val type: String = "servers"
+    override val category: String = "sponge"
 
     override fun availableVersions(): List<String> =
         CachingService.rememberMinutes("$baseDirectory/versions", 5) {

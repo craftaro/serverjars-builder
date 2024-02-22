@@ -11,13 +11,17 @@ internal class AllServicesTest {
         val services = App.services()
         for(service in services) {
             val versions = service.availableVersions()
-            assertTrue(versions.isNotEmpty(), "Service ${service.baseDirectory} has no versions")
+            if(!service.isDiscontinued()) {
+                assertTrue(versions.isNotEmpty(), "Service ${service.baseDirectory} has no versions")
+            }
 
             // Build latest version
-            val latestVersion = versions.first()
+            val latestVersion = versions.firstOrNull() ?: continue
             service.build(latestVersion)
 
-            assertTrue(Storage.contains("${service.baseDirectory}/$latestVersion/${service.type}-$latestVersion.jar"), "Service ${service.baseDirectory} failed to build latest version")
+            if(!service.isDiscontinued()) {
+                assertTrue(Storage.contains("${service.baseDirectory}/$latestVersion/${service.category}-$latestVersion.jar"), "Service ${service.baseDirectory} failed to build latest version")
+            }
             service.saveDatabase()
         }
     }

@@ -6,8 +6,8 @@ import com.google.gson.JsonObject
 
 object VelocityService: SoftwareBuilder() {
 
-    override val category: String = "proxy"
-    override val type: String = "velocity"
+    override val type: String = "proxy"
+    override val category: String = "velocity"
 
     private val api = PaperAPIService(
         baseDirectory = baseDirectory,

@@ -8,8 +8,8 @@ import java.net.URL
 
 object PurpurService: SoftwareBuilder() {
 
-    override val category: String = "servers"
-    override val type: String = "purpur"
+    override val type: String = "servers"
+    override val category: String = "purpur"
 
     override fun availableVersions(): List<String> =
         CachingService.rememberMinutes("purpur-versions", 5) {

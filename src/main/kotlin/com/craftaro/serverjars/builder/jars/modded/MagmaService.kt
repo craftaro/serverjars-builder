@@ -3,17 +3,25 @@ package com.craftaro.serverjars.builder.jars.modded
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
 import com.craftaro.serverjars.builder.utils.CachingService
 import com.craftaro.serverjars.builder.utils.Crypto
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.net.URL
 
 object MagmaService: SoftwareBuilder() {
-    override val category: String = "modded"
-    override val type: String = "magma"
+    override val type: String = "modded"
+    override val category: String = "magma"
 
     override fun availableVersions(): List<String> = CachingService.rememberMinutes("$baseDirectory/versions", 5) {
-        JsonObject().apply {
-            add("versions", JsonParser.parseString(URL("https://api.magmafoundation.org/api/v2/allVersions").readText()).asJsonArray)
+        try {
+            val meta = URL("https://api.magmafoundation.org/api/v2/allVersions").readText()
+            JsonObject().apply {
+                add("versions", JsonParser.parseString(meta).asJsonArray)
+            }
+        } catch (e: Exception) {
+            JsonObject().apply {
+                add("versions", JsonArray())
+            }
         }
     }.getAsJsonArray("versions").map { it.asString }.filter {
         getMeta(it).has("origin")
@@ -50,4 +58,6 @@ object MagmaService: SoftwareBuilder() {
     }
 
     override fun getStability(version: String): String = "unknown"
+
+    override fun isDiscontinued(): Boolean = true
 }

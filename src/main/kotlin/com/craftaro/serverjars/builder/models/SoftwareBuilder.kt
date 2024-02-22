@@ -10,13 +10,15 @@ import java.nio.charset.Charset
 
 abstract class SoftwareBuilder {
 
-    abstract val category: String
     abstract val type: String
+    abstract val category: String
 
     val baseDirectory: String
-        get() = "$category/$type"
+        get() = "$type/$category"
 
     private val db: MutableList<SoftwareFile> = mutableListOf()
+
+    open fun isDiscontinued(): Boolean = false
 
     abstract fun availableVersions(): List<String>
 
@@ -29,7 +31,7 @@ abstract class SoftwareBuilder {
     abstract fun getStability(version: String): String
 
     fun build(version: String) {
-        val display = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        val display = category.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         var toPrint = "$display: Building version $version..."
         val hash = getHash(version) ?: run {
             toPrint += "\n\tFailed to find hash for version $version"
@@ -51,18 +53,24 @@ abstract class SoftwareBuilder {
         }
 
         toPrint += "\n\tBuilding version $version..."
+        val meta = getMeta(version)
+        if(meta.isEmpty) {
+            toPrint += "\n\tFailed to find meta for version $version"
+            println(toPrint)
+            return
+        }
         saveToDatabase(SoftwareFile(
             version = version,
             stability = getStability(version),
             hash = hash,
-            download = "https://cdn.craftaro.com/$baseDirectory/$version/$type-$version.jar",
-            meta = getMeta(version)
+            download = "https://cdn.craftaro.com/$baseDirectory/$version/$category-$version.jar",
+            meta = meta
         ))
 
         toPrint += "\n\tUploading version $version to Storage..."
         val bytes = URL(download).readBytes()
         Storage.write(
-            path = "$baseDirectory/$version/$type-$version.jar",
+            path = "$baseDirectory/$version/$category-$version.jar",
             contents = bytes,
             permission = "public-read",
             checksum = Crypto.toString(Crypto.sha256(bytes))
@@ -70,12 +78,14 @@ abstract class SoftwareBuilder {
         println("\n$toPrint")
     }
 
-    fun buildAll(versions: Array<String> = arrayOf("all")) {
+    fun buildAll(versions: Array<String> = arrayOf("all")) = try {
         if(versions.firstOrNull()?.lowercase() == "all") {
             availableVersions().forEach { build(it) }
         } else {
             versions.forEach { build(it) }
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 
     open fun loadDatabase() {
@@ -125,6 +135,16 @@ abstract class SoftwareBuilder {
 
         Storage.write("$baseDirectory/meta.json", data.toString().toByteArray(Charset.defaultCharset()))
         println("Saved database $baseDirectory/meta.json")
+
+        if(Storage.contains("$type/meta.json")) {
+            val typeData = JsonParser.parseString(Storage.readString("$type/meta.json") ?: "[]").asJsonArray
+            if(typeData.none { it.asString == category }) {
+                typeData.add(category)
+                Storage.write("$type/meta.json", typeData.toString().toByteArray(Charset.defaultCharset()))
+            }
+        } else {
+            Storage.write("$type/meta.json", JsonArray().apply { add(category) }.toString().toByteArray(Charset.defaultCharset()))
+        }
     }
 
 }

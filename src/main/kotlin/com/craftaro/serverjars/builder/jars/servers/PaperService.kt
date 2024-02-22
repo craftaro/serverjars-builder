@@ -6,8 +6,8 @@ import com.google.gson.JsonObject
 
 object PaperService : SoftwareBuilder() {
 
-    override val category: String = "servers"
-    override val type: String = "paper"
+    override val type: String = "servers"
+    override val category: String = "paper"
 
     private val api = PaperAPIService(
         baseDirectory = baseDirectory,

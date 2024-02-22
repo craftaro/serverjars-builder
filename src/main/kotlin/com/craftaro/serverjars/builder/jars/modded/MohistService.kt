@@ -6,12 +6,12 @@ import com.google.gson.JsonObject
 
 object MohistService: SoftwareBuilder() {
 
-    override val category: String = "modded"
-    override val type: String = "mohist"
+    override val type: String = "modded"
+    override val category: String = "mohist"
 
     private val api = MohistAPIService(
         baseDirectory = baseDirectory,
-        project = type
+        project = category
     )
 
     override fun availableVersions(): List<String> = api.availableVersions()

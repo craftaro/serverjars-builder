@@ -7,8 +7,8 @@ import com.google.gson.JsonParser
 import java.net.URL
 
 object PufferfishService: SoftwareBuilder() {
-    override val category: String = "servers"
-    override val type: String = "pufferfish"
+    override val type: String = "servers"
+    override val category: String = "pufferfish"
 
     override fun availableVersions(): List<String> =
         CachingService.rememberMinutes("$baseDirectory/versions", 5) {

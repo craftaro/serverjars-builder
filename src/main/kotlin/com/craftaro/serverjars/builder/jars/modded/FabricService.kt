@@ -6,12 +6,11 @@ import com.craftaro.serverjars.builder.utils.Crypto
 import com.craftaro.serverjars.builder.utils.asJson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import java.net.URL
 
 object FabricService: SoftwareBuilder() {
-    override val category: String = "modded"
-    override val type: String = "fabric"
+    override val type: String = "modded"
+    override val category: String = "fabric"
 
     override fun availableVersions(): List<String> = CachingService.rememberMinutes("$baseDirectory/versions", 5) {
         JsonObject().apply {

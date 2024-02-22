@@ -9,11 +9,11 @@ import com.google.gson.JsonObject
 import java.net.URL
 
 object PocketMineService: SoftwareBuilder() {
-    override val category: String = "bedrock"
-    override val type: String = "pocketmine"
+    override val type: String = "bedrock"
+    override val category: String = "pocketmine"
 
     // We don't want to exceed GitHub limits, so we'll only be constructing the latest version
-    override fun availableVersions(): List<String> = listOf("latest")
+    override fun availableVersions(): List<String> = listOf(URL("https://api.github.com/repos/pmmp/PocketMine-MP/releases/latest").asJson().asJsonObject["tag_name"].asString)
 
     override fun getMeta(version: String): JsonObject = CachingService.rememberMinutes(key = "pocketmineMeta-$version", ttl = 15) {
         val data = URL(if(version == "latest") "https://api.github.com/repos/pmmp/PocketMine-MP/releases/latest" else "https://api.github.com/repos/pmmp/PocketMine-MP/releases/tags/$version").asJson().asJsonObject

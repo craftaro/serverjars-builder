@@ -8,9 +8,9 @@ import java.net.URL
 
 object BungeeService: SoftwareBuilder() {
 
-    override val category: String = "proxies"
+    override val type: String = "proxies"
 
-    override val type: String = "bungee"
+    override val category: String = "bungee"
 
     private val builds = JsonParser.parseString(URL("https://ci.md-5.net/job/Bungeecord/api/json?tree=allBuilds[number,mavenArtifacts[moduleRecords[pomArtifact[version]]{0}]]").readText()).asJsonObject
         .getAsJsonArray("allBuilds")

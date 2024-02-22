@@ -4,7 +4,10 @@ import com.craftaro.serverjars.builder.jars.bedrock.PocketMineService
 import com.craftaro.serverjars.builder.jars.modded.*
 import com.craftaro.serverjars.builder.jars.proxies.BungeeService
 import com.craftaro.serverjars.builder.jars.proxies.VelocityService
+import com.craftaro.serverjars.builder.jars.proxies.WaterfallService
 import com.craftaro.serverjars.builder.jars.servers.*
+import com.craftaro.serverjars.builder.jars.vanilla.SnapshotService
+import com.craftaro.serverjars.builder.jars.vanilla.VanillaService
 import com.craftaro.serverjars.builder.utils.EnvironmentUtils
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
@@ -28,6 +31,7 @@ object App {
         // Proxies
         BungeeService,
         VelocityService,
+        WaterfallService,
 
         // Servers
         PaperService,
@@ -35,6 +39,10 @@ object App {
         PurpurService,
         SpongeService,
         PufferfishService,
+
+        // Vanilla
+        VanillaService,
+        SnapshotService,
     )
 }
 
@@ -53,13 +61,13 @@ fun main(args: Array<out String>){
             println("\t-${it.opt} --${it.longOpt}\t${it.description}")
         }
 
-        println("\nAvailable categories: ${services.distinctBy { it.category }.joinToString(", "){ it.category }}")
+        println("\nAvailable categories: ${services.distinctBy { it.type }.joinToString(", "){ it.type }}")
         return
     }
 
     if(cmd.hasOption("available-types")) {
         val category = cmd.getOptionValue("available-types", "servers")
-        println("Available types for $category: ${services.filter { it.category == category }.distinctBy { it.type }.joinToString(", "){ it.type }}")
+        println("Available types for $category: ${services.filter { it.type == category }.distinctBy { it.category }.joinToString(", "){ it.category }}")
         return
     }
 
@@ -88,9 +96,9 @@ fun main(args: Array<out String>){
     val type = cmd.getOptionValue("type", "all")
     val version = cmd.getOptionValue("version", "all")
     val servicesToProcess = if(type.lowercase() == "all") {
-        services.filter { it.category == category }
+        services.filter { it.type == category }
     } else {
-        services.filter { it.category == category && it.type == type }
+        services.filter { it.type == category && it.category == type }
     }
 
     if(servicesToProcess.isEmpty()) {
@@ -103,13 +111,11 @@ fun main(args: Array<out String>){
             try {
                 println("Processing ${service.baseDirectory}...")
                 service.loadDatabase()
-                if(version == "all") {
-                    service.buildAll()
-                } else if(version.contains(";")) {
-                    service.buildAll(version.split(";").toTypedArray())
+                service.buildAll(if(version.contains(";")) {
+                    version.split(";").toTypedArray()
                 } else {
-                    service.build(version)
-                }
+                    arrayOf(version)
+                })
                 service.saveDatabase()
             } catch (e: Exception) {
                 println("An error occurred while processing ${service.baseDirectory}: ${e.message}")

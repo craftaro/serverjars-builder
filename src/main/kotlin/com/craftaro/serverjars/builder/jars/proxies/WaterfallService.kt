@@ -1,17 +1,16 @@
-package com.craftaro.serverjars.builder.jars.modded
+package com.craftaro.serverjars.builder.jars.proxies
 
 import com.craftaro.serverjars.builder.models.SoftwareBuilder
-import com.craftaro.serverjars.builder.services.MohistAPIService
+import com.craftaro.serverjars.builder.services.PaperAPIService
 import com.google.gson.JsonObject
 
-object BannerService: SoftwareBuilder() {
+object WaterfallService: SoftwareBuilder() {
 
-    override val type: String = "modded"
-    override val category: String = "banner"
-
-    private val api = MohistAPIService(
+    override val type: String = "proxy"
+    override val category: String = "waterfall"
+    private val api = PaperAPIService(
         baseDirectory = baseDirectory,
-        project = category
+        project = "waterfall",
     )
 
     override fun availableVersions(): List<String> = api.availableVersions()
@@ -22,5 +21,5 @@ object BannerService: SoftwareBuilder() {
 
     override fun getDownload(version: String): String? = getMeta(version)["origin"]?.asString
 
-    override fun getStability(version: String): String = "unknown"
+    override fun getStability(version: String): String = getMeta(version)["stability"]?.asString ?: "unknown"
 }

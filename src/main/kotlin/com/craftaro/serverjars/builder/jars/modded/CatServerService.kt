@@ -9,8 +9,8 @@ import java.net.URL
 
 object CatServerService: SoftwareBuilder() {
 
-    override val category: String = "modded"
-    override val type: String = "catserver"
+    override val type: String = "modded"
+    override val category: String = "catserver"
 
     override fun availableVersions(): List<String> = URL("https://jenkins.rbqcloud.cn:30011/api/json").asJson()
         .asJsonObject["jobs"]

@@ -11,4 +11,7 @@ object Crypto {
 
     fun toString(bytes: ByteArray): String =
         bytes.joinToString("") { "%02x".format(it) }
+
+    fun secureEquals(a: ByteArray, b: ByteArray): Boolean =
+        MessageDigest.isEqual(a, b)
 }

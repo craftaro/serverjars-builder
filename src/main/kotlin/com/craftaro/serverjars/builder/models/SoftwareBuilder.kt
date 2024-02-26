@@ -59,13 +59,6 @@ abstract class SoftwareBuilder {
             println(toPrint)
             return
         }
-        saveToDatabase(SoftwareFile(
-            version = version,
-            stability = getStability(version),
-            hash = hash,
-            download = "https://cdn.craftaro.com/$baseDirectory/$version/$category-$version.jar",
-            meta = meta
-        ))
 
         toPrint += "\n\tUploading version $version to Storage..."
         val bytes = URL(download).readBytes()
@@ -75,6 +68,21 @@ abstract class SoftwareBuilder {
             permission = "public-read",
             checksum = Crypto.toString(Crypto.sha256(bytes))
         )
+
+        saveToDatabase(SoftwareFile(
+            version = version,
+            stability = getStability(version),
+            hash = hash,
+            download = "https://cdn.craftaro.com/$baseDirectory/$version/$category-$version.jar",
+            built = System.currentTimeMillis(),
+            size = SoftwareFileSize(
+                bytes = bytes.size,
+                // Display as MiB
+                display = "${"%.2f".format(bytes.size / 1024.0 / 1024.0)} MiB"
+            ),
+            meta = meta,
+        ))
+
         println("\n$toPrint")
     }
 
@@ -95,11 +103,16 @@ abstract class SoftwareBuilder {
             value.asJsonObject.apply {
                 db.add(
                     SoftwareFile(
-                        version = get("version").asString,
-                        stability = get("stability").asString,
-                        hash = get("hash").asString,
-                        download = get("download").asString,
-                        meta = get("meta").asJsonObject
+                        version = this["version"].asString,
+                        stability = this["stability"].asString,
+                        hash = this["hash"].asString,
+                        download = this["download"].asString,
+                        built = this["built"]?.isJsonNull?.takeIf { !it }?.let { this["built"].asLong } ?: System.currentTimeMillis(),
+                        size = SoftwareFileSize(
+                            bytes = this["size"]?.asJsonObject?.get("bytes")?.asInt ?: 0,
+                            display = this["size"]?.asJsonObject?.get("display")?.asString ?: "0 B"
+                        ),
+                        meta = this["meta"].asJsonObject
                     )
                 )
             }
@@ -115,7 +128,14 @@ abstract class SoftwareBuilder {
     }
 
     open fun saveToDatabase(file: SoftwareFile) {
-        if(isInDatabase(file.version, file.hash)) return
+        if(isInDatabase(file.version, file.hash)) {
+            // Now check for a hash of the contents
+            val inDatabaseHash = Crypto.sha256(db.firstOrNull { it.version == file.version && it.hash == file.hash }?.toJson().toString().toByteArray())
+            val newHash = Crypto.sha256(file.toJson().toString().toByteArray())
+            if (Crypto.secureEquals(inDatabaseHash, newHash)) {
+                return
+            }
+        }
 
         // Now if in the db there's the same version, replace it, but keep the same index
         val index = db.indexOfFirst { it.version == file.version }

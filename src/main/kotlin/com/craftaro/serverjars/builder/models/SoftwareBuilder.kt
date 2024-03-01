@@ -2,6 +2,7 @@ package com.craftaro.serverjars.builder.models
 
 import com.craftaro.serverjars.builder.utils.Crypto
 import com.craftaro.serverjars.builder.utils.Storage
+import com.craftaro.serverjars.builder.App
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -73,7 +74,7 @@ abstract class SoftwareBuilder {
             version = version,
             stability = getStability(version),
             hash = hash,
-            download = "https://cdn.craftaro.com/$baseDirectory/$version/$category-$version.jar",
+            download = "https://cdn.craftaro.com/${App.env["SERVERJARS_FOLDER"]}/$baseDirectory/$version/$category-$version.jar",
             built = System.currentTimeMillis(),
             size = SoftwareFileSize(
                 bytes = bytes.size,
